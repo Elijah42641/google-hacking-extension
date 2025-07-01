@@ -7,7 +7,7 @@ when you load a page it searches for suspicious keywords in the source code of t
 looks at the url for an open redirect using a scikit model at the same time it searches the source code </br>
 </br>
 context menus: </br>
-when you right click anywhere that isnt a page hover over 'hacking helper' </br>
+when you right click anywhere that isnt an element, hover over 'hacking helper' </br>
 currently there are only two context menus, but one of them evaluates url and spots stuff like idor or any possible data insertion </br>
 the other one lets you run reflected XSS payloads, these payloads are just for you to see if the page has the vulnerability and doesnt run anything malicious, but make sure you have permission to test these kinds of attacks </br>
 </br>

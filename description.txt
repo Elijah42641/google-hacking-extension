@@ -1,0 +1,3 @@
+if extension is enabled it searches source code for common keywords that might reveal some vulnerabilities of your current url
+
+extension will also check for open redirect 

@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Hacking helper",
+  "version": "1.0",
+  "description": "checks for open redirects, reflected XSS, and sensitive keywords.",
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "source-code-search/get-window-location.js",
+        "reflected-XSS-payloads/reflectedXSSConfirm.js",
+        "url_evaluator/evaluator-content.js"
+      ]
+    }
+  ],
+  "permissions": ["contextMenus", "tabs", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_title": "Hacking helper"
+  }
+}

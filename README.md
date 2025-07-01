@@ -10,8 +10,9 @@ context menus: </br>
 when you right click anywhere that isnt a page hover over 'hacking helper' </br>
 currently there are only two context menus, but one of them evaluates url and spots stuff like idor or any possible data insertion </br>
 the other one lets you run reflected XSS payloads, these payloads are just for you to see if the page has the vulnerability and doesnt run anything malicious, but make sure you have permission to test these kinds of attacks </br>
+</br></br>
+please dont use this tool for anything illegal and if you have any ideas to improve this or spot if you spot any problems make a pull request to update the future fixes list
 </br>
 Future fixes: </br>
 none so far...
-</br>
-please dont use this tool for anything illegal and if you have any ideas to improve this or spot if you spot any problems make a pull request to update the future fixes list
+</br> </br>

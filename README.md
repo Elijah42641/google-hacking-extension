@@ -17,5 +17,7 @@ the other one lets you run reflected XSS payloads, these payloads are just for y
 please dont use this tool for anything illegal and if you have any ideas to improve this or spot if you spot any problems make a pull request to update the future fixes list
 </br></br>
 Future fixes: </br>
-none so far...
+train input mapping ai to be smarter </br>
+make input mapping less buggy </br>
+add features to help with more aspects of hacking
 </br> </br>

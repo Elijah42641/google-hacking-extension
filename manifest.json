@@ -12,7 +12,8 @@
       "js": [
         "source-code-search/get-window-location.js",
         "reflected-XSS-payloads/reflectedXSSConfirm.js",
-        "url_evaluator/evaluator-content.js"
+        "url_evaluator/evaluator-content.js",
+        "make-custom-request/makeCustomRequest.js"
       ]
     }
   ],

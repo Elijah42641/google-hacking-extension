@@ -7,7 +7,6 @@ import joblib
 
 from url_evaluator.evaluator import evaluateUrl
 
-openRedirectAI = joblib.load('open_redirect_model.joblib')
 
 print("Script started")
 
@@ -38,17 +37,12 @@ def receive():
         page_source = response.text.lower()
 
         found = [k for k in sensitiveKeywords if k.lower() in page_source]
-        openRedirect = openRedirectAI.predict([url])
-        if openRedirect == ([1]):
-            openRedirect = "True"
-        else: 
-            openRedirect="False"    
+           
         print(f"Sensitive keywords found: {found}")
-        print(f"open redirect: {openRedirect}")
-        if found or openRedirect != "False":
+        if found:
             return jsonify({
                 "status": "alert",
-                "message": f"Sensitive keywords found:\n{', '.join(found)}\nopen redirect:\n{openRedirect}",
+                "message": f"Sensitive keywords found:\n{', '.join(found)}",
             })
 
     except Exception as e:

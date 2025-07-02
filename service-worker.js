@@ -8,8 +8,23 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "evaluate-url",
-    title: "evaluate url",
+    title: "Evaluate url",
   });
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "create-custom-request",
+    title: "Create custom request",
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "create-custom-request") {
+    chrome.tabs.sendMessage(tab.id, {
+      action: "Create custom request",
+    });
+  }
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {

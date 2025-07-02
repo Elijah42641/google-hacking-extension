@@ -9,7 +9,7 @@ looks at the url for an open redirect using a scikit model at the same time it s
 </br>
 At the second the input mapping is pretty slow and buggy so it may only work on sites with under 2 or 1 megabytes of html in the document</br>
 if you have any ideas of what how to fix this in my code then make a pull request and ill review your changes </br> </br>
-context menus: </br>
+context menus: </br> </br>
 when you right click anywhere that isnt an element, hover over 'hacking helper' </br>
 currently there are only two context menus, but one of them evaluates url and spots stuff like idor or any possible data insertion </br>
 the other one lets you run reflected XSS payloads, these payloads are just for you to see if the page has the vulnerability and doesnt run anything malicious, but make sure you have permission to test these kinds of attacks </br>

@@ -64,6 +64,38 @@ def recieveAndSendData():
                 "message": f"URL evaluation: {urlEvaluation}"
             })
     
+@app.route("/make-custom-request", methods=["POST"])
+def makeRequest():
+    data = request.get_json()
+    url = data.get("url")
+    latest_url["url"] = url
+    print(f"Received URL: {url}")
+    requestHeaders = data.get("requestHeaders")
+    method = data.get("method")
+    requestBody = data.get("requestBody")
+    if method in ["POST", "PUT", "PATCH", "DELETE"]:
+        # send an empty request body if empty request body is submitted
+        if (isinstance(requestBody, str) and len(requestBody.strip()) == 0) or (isinstance(requestBody, dict) and not requestBody):
+            customRequest = requests.request(method, url, headers=requestHeaders)
+        else:
+            # submit request body correctly if user chose to include
+            headers_str = str(requestHeaders)
+            if '"content-type":"application/json"' in headers_str.lower():
+                customRequest = requests.request(method, url, headers=requestHeaders, json=requestBody)
+            elif '"content-type":"application/x-www-form-urlencoded"' in headers_str.lower():
+                customRequest = requests.request(method, url, headers=requestHeaders, data=requestBody)
+            elif '"content-type":"multipart/form-data"' in headers_str.lower():
+                customRequest = requests.request(method, url, headers=requestHeaders, files=requestBody)
+            else:
+                customRequest = requests.request(method, url, headers=requestHeaders, data=requestBody)
+    else:
+        customRequest = requests.request(method, url, headers=requestHeaders)
+
+    return jsonify({
+    "headers": dict(customRequest.headers),
+    "text": customRequest.text,
+    "url": customRequest.url
+})
 
 
 def start_server():

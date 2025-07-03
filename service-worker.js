@@ -33,6 +33,21 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "view-hacking-library",
+    title: "View hacking library",
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "view-hacking-library") {
+    chrome.tabs.sendMessage(tab.id, {
+      action: "view hacking library",
+    });
+  }
+});
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "check-cookie-security") {
     // Get the cookies first in background

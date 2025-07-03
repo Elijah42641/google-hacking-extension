@@ -4,7 +4,11 @@ function makeRequest() {
   let method = document.querySelector("#request-method").value;
   let requestHeaders = document.querySelector("#request-headers").value;
   let requestBody = document.querySelector("#request-body").value;
-  let url = window.location.href;
+  let url = document.querySelector("#requestUrl").value;
+
+  if ((url = "" || !url)) {
+    url = window.location.href;
+  }
 
   // make sure input is valid for request headers
   try {
@@ -155,8 +159,8 @@ function toggleRequestBuilderUI() {
   
       <div style="margin-bottom: 12px;">
         <label style="font-weight: 600; display: block; margin-bottom: 6px;">Request URL</label>
-        <div style="padding: 10px; background: #334155; border-radius: 6px; user-select: text; font-size: 0.9rem; overflow-wrap: anywhere;">${window.location.href}</div>
-      </div>
+        <input style = "width:200px;" placeholder = ${window.location.href} id="requestUrl">
+        </div>
   
       <div style="margin-bottom: 15px;">
         <label for="request-method" style="font-weight: 600; margin-bottom: 6px; display: block;">Method</label>

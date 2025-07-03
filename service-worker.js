@@ -26,6 +26,27 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "check-cookie-security",
+    title: "Check cookies security",
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "check-cookie-security") {
+    // Get the cookies first in background
+    chrome.cookies.getAll({ domain: new URL(tab.url).hostname }, (cookies) => {
+      // Send cookies to content script
+      chrome.tabs.sendMessage(tab.id, {
+        action: "check cookie security",
+        cookies: cookies,
+        hostname: new URL(tab.url).hostname,
+      });
+    });
+  }
+});
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "map-inputs") {
     chrome.tabs.sendMessage(tab.id, {

@@ -14,11 +14,12 @@
         "reflected-XSS-payloads/reflectedXSSConfirm.js",
         "url_evaluator/evaluator-content.js",
         "make-custom-request/makeCustomRequest.js",
-        "map_inputs/map_inputs.js"
+        "map_inputs/map_inputs.js",
+        "check_cookie_security/cookie-security.js"
       ]
     }
   ],
-  "permissions": ["contextMenus", "tabs", "scripting"],
+  "permissions": ["cookies", "contextMenus", "tabs", "scripting"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_title": "Hacking helper"

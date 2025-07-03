@@ -8,6 +8,7 @@ import base64
 
 from url_evaluator.evaluator import evaluateUrl
 from map_inputs.map_inputs import findInputs
+from check_cookie_security.cookies_security import check_cookies_security
 
 print("Script started")
 
@@ -125,6 +126,39 @@ def map_all_input_elements():
         "message": f"inputs found: {inputElements}",
         "inputs": inputElements
     }), 200
+
+@app.route("/check-cookies", methods=["POST"])
+def check_cookies_route():
+    data = request.get_json()
+    cookies = data.get("cookies", [])
+
+    if not isinstance(cookies, list):
+        return jsonify({
+            "status": "error",
+            "message": "Invalid input: 'cookies' must be a list."
+        }), 400
+
+    try:
+        # Run your ML model function to check cookie security
+        evaluated_cookies = check_cookies_security(cookies)
+
+        # Format response: add 'sensitive' field to each cookie dictionary
+        response_cookies = []
+        for cookie, prediction in evaluated_cookies:
+            cookie_copy = cookie.copy()
+            cookie_copy["sensitive"] = bool(prediction)
+            response_cookies.append(cookie_copy)
+
+        return jsonify({
+            "status": "success",
+            "cookies": response_cookies
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Error evaluating cookies: {str(e)}"
+        }), 500
 
 def start_server():
     app.run(port=6969)

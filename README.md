@@ -15,7 +15,8 @@ currently there are five context menus, one of them evaluates the current url an
 second one lets you run reflected XSS payloads, these payloads are just for you to see if the page has the vulnerability and doesnt run anything malicious, but make sure you have permission to test these kinds of attacks </br>
 the third one lets you create a custom request with the method of your choice (GET,POST,Put,etc), your chosen request headers, and if the method allows, your own request body </br>
 thr fourth one lets you map out all the inputs that the ai model detects in the document html, it also guides the page to the input so you can search for bug bounties in the inputs, at the second the ai model isnt very smart, so if you really want to make use of this feature update the README to remind me to train the modek </br>
-the fifth and last one lets you view the cookies for your current url and will show red by the cookie if my other ai model (hopefully smarter) detects that the cookies may allow authentication bypass
+the fifth one lets you view the cookies for your current url and will show red by the cookie if my other ai model (hopefully smarter) detects that the cookies may allow authentication bypass</br>
+the last one opens up a hacking library for if you feel stuck and not sure what to do 
 </br>
 </br>
 please dont use this tool for anything illegal and if you have any ideas to improve this or spot if you spot any problems make a pull request to update the future fixes list

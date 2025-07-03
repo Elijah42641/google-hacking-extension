@@ -19,6 +19,21 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "map-inputs",
+    title: "Map out all inputs",
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "map-inputs") {
+    chrome.tabs.sendMessage(tab.id, {
+      action: "map out all inputs",
+    });
+  }
+});
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "create-custom-request") {
     chrome.tabs.sendMessage(tab.id, {

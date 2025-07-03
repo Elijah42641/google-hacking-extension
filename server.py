@@ -4,9 +4,10 @@ from flask_cors import CORS
 import threading
 import time
 import joblib
+import base64
 
 from url_evaluator.evaluator import evaluateUrl
-
+from map_inputs.map_inputs import findInputs
 
 print("Script started")
 
@@ -97,6 +98,33 @@ def makeRequest():
     "url": customRequest.url
 })
 
+@app.route("/map-input-elements", methods=["POST"])
+def map_all_input_elements():
+    data = request.get_json()
+
+    html_encoded = data.get("html", "")
+    if not isinstance(html_encoded, str):
+        return jsonify({
+            "status": "error",
+            "message": "Invalid HTML format: expected base64-encoded string."
+        }), 400
+
+    try:
+        html_bytes = base64.b64decode(html_encoded)
+        html = html_bytes.decode("utf-8", errors="ignore")
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Failed to decode HTML: {str(e)}"
+        }), 400
+
+    inputElements = findInputs(html)
+
+    return jsonify({
+        "status": "alert",
+        "message": f"inputs found: {inputElements}",
+        "inputs": inputElements
+    }), 200
 
 def start_server():
     app.run(port=6969)

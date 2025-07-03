@@ -13,7 +13,8 @@
         "source-code-search/get-window-location.js",
         "reflected-XSS-payloads/reflectedXSSConfirm.js",
         "url_evaluator/evaluator-content.js",
-        "make-custom-request/makeCustomRequest.js"
+        "make-custom-request/makeCustomRequest.js",
+        "map_inputs/map_inputs.js"
       ]
     }
   ],

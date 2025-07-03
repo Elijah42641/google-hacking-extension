@@ -25,15 +25,55 @@ function displayInputs() {
 
     btn.addEventListener("click", () => {
       const realElement = document.getElementById(input.id);
-      if (realElement) {
-        window.alert(inputEl);
-        realElement.scrollIntoView({ behavior: "smooth", block: "center" });
-        realElement.focus({ preventScroll: true });
-        realElement.style.outline = "2px solid red";
-        setTimeout(() => {
-          realElement.style.outline = "";
-        }, 1500);
-      }
+      if (!realElement) return;
+
+      // Remove any existing overlay
+      const existingOverlay = document.getElementById("red-overlay");
+      if (existingOverlay) existingOverlay.remove();
+
+      // Scroll to input and focus it
+      realElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      realElement.focus({ preventScroll: true });
+
+      // Create the full-page red overlay
+      const overlay = document.createElement("div");
+      overlay.id = "red-overlay";
+      Object.assign(overlay.style, {
+        position: "fixed",
+        top: "0",
+        left: "0",
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "rgba(255,0,0,0.8)",
+        zIndex: "99999999",
+        transition: "all 1s ease",
+        pointerEvents: "none",
+      });
+      document.body.appendChild(overlay);
+
+      // Get input bounding rect relative to viewport
+      const rect = realElement.getBoundingClientRect();
+
+      // Force a reflow so transition will work
+      overlay.getBoundingClientRect();
+
+      // Animate overlay to shrink to input position and size
+      Object.assign(overlay.style, {
+        top: `${rect.top}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+        borderRadius: "6px",
+      });
+
+      // After transition ends, remove overlay
+      overlay.addEventListener(
+        "transitionend",
+        () => {
+          overlay.remove();
+        },
+        { once: true }
+      );
     });
 
     panel.appendChild(btn);
@@ -111,14 +151,20 @@ style.textContent = `
     border-radius: 4px;
   }
 
+  .highlighted-input {
+    outline: 3px solid red !important;
+    outline-offset: 2px;
+    background-color: yellow !important;
+    box-shadow: 0 0 8px 3px rgba(255, 0, 0, 0.7);
+    transition: outline 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    position: relative;
+    z-index: 999999 !important;
+  }
+
   .resizer {
     position: absolute;
     background: transparent;
     z-index: 10000;
-  }
-
-  .resizer.edge { 
-    /* edges are 10px thick for easy grabbing */
   }
 
   .resizer.right { 
@@ -180,19 +226,16 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Add resizers and resizing logic
 function makeResizable(el) {
   const edges = ["top", "right", "bottom", "left"];
   const corners = ["top-left", "top-right", "bottom-left", "bottom-right"];
 
-  // Add edge resizers
   edges.forEach((edge) => {
     const resizer = document.createElement("div");
     resizer.className = `resizer edge ${edge}`;
     el.appendChild(resizer);
   });
 
-  // Add corner resizers
   corners.forEach((corner) => {
     const resizer = document.createElement("div");
     resizer.className = `resizer corner ${corner}`;
@@ -236,7 +279,6 @@ function makeResizable(el) {
             el.style.top = `${startTop + (ev.clientY - startY)}px`;
           }
         }
-        // Corners combine two edges:
         if (classList.contains("bottom-right")) {
           el.style.width = `${startWidth + ev.clientX - startX}px`;
           el.style.height = `${startHeight + ev.clientY - startY}px`;

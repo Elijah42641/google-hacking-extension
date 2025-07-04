@@ -6,7 +6,7 @@ function makeRequest() {
   let requestBody = document.querySelector("#request-body").value;
   let url = document.querySelector("#requestUrl").value;
 
-  if ((url = "" || !url)) {
+  if (url == "" || !url) {
     url = window.location.href;
   }
 

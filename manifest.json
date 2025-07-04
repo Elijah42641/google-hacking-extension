@@ -16,7 +16,8 @@
         "make-custom-request/makeCustomRequest.js",
         "map_inputs/map_inputs.js",
         "check_cookie_security/cookie-security.js",
-        "powershell-library/powershell.js"
+        "powershell-library/powershell.js",
+        "inject-xss-textbox.js"
       ]
     }
   ],

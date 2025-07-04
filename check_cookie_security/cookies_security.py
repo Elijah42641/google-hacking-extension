@@ -1,7 +1,23 @@
 import joblib
 import numpy as np
+import types
+import sys
 
-# Load the trained model (do this once globally)
+def select_names(*args, **kwargs):
+    return None
+
+def select_values(*args, **kwargs):
+    return None
+
+def select_flags(*args, **kwargs):
+    return None
+
+# Inject into __main__ so pickle can find them
+sys.modules["__main__"].select_names = select_names
+sys.modules["__main__"].select_values = select_values
+sys.modules["__main__"].select_flags = select_flags
+
+# Now safe to load
 model = joblib.load("cookie_sensitivity_model.joblib")
 
 def check_cookies_security(cookies):

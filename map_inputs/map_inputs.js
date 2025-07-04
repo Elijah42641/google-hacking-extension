@@ -15,27 +15,38 @@ function displayInputs() {
     const doc = parser.parseFromString(inputEl, "text/html");
     const input = doc.body.firstElementChild;
 
-    if (!input || !input.id) return;
+    if (!input) return;
+
+    let inputId = input.id;
+
+    // If there's no ID, assign a temporary one
+    if (!inputId) {
+      inputId = `input-no-id-${index}`;
+      const realInputs = document.querySelectorAll(input.tagName);
+      const matching = Array.from(realInputs).filter(el => {
+        return el.name === input.name &&
+               el.type === input.type &&
+               el.placeholder === input.placeholder;
+      });
+      if (matching[0]) matching[0].id = inputId;
+    }
 
     const label =
-      input.name || input.placeholder || input.id || `Input ${index}`;
+      input.name || input.placeholder || inputId || `Input ${index}`;
     const btn = document.createElement("button");
     btn.innerText = label;
     btn.className = "input-btn";
 
     btn.addEventListener("click", () => {
-      const realElement = document.getElementById(input.id);
+      const realElement = document.getElementById(inputId);
       if (!realElement) return;
 
-      // Remove any existing overlay
       const existingOverlay = document.getElementById("red-overlay");
       if (existingOverlay) existingOverlay.remove();
 
-      // Scroll to input and focus it
       realElement.scrollIntoView({ behavior: "smooth", block: "center" });
       realElement.focus({ preventScroll: true });
 
-      // Create the full-page red overlay
       const overlay = document.createElement("div");
       overlay.id = "red-overlay";
       Object.assign(overlay.style, {
@@ -51,13 +62,8 @@ function displayInputs() {
       });
       document.body.appendChild(overlay);
 
-      // Get input bounding rect relative to viewport
       const rect = realElement.getBoundingClientRect();
-
-      // Force a reflow so transition will work
-      overlay.getBoundingClientRect();
-
-      // Animate overlay to shrink to input position and size
+      overlay.getBoundingClientRect(); // Force reflow
       Object.assign(overlay.style, {
         top: `${rect.top}px`,
         left: `${rect.left}px`,
@@ -66,7 +72,6 @@ function displayInputs() {
         borderRadius: "6px",
       });
 
-      // After transition ends, remove overlay
       overlay.addEventListener(
         "transitionend",
         () => {
@@ -81,6 +86,7 @@ function displayInputs() {
 
   makeResizable(panel);
 }
+
 
 function mapInputs() {
   console.log("mapping inputs");

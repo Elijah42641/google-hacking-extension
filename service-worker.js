@@ -1,5 +1,12 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
+    id: "run-recon",
+    title: "Run recon",
+  });
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
     id: "reflected-xss",
     title: "Run reflected XSS payloads",
   });
@@ -38,6 +45,57 @@ chrome.runtime.onInstalled.addListener(() => {
     id: "view-hacking-library",
     title: "View hacking library",
   });
+});
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId === "run-recon") {
+    const url = new URL(tab.url);
+    const domain = url.hostname;
+    const reconData = {};
+
+    try {
+      const [geoRes, whoisRes, dnsRes, crtRes, archiveRes] = await Promise.all([
+        fetch(`https://ipwhois.app/json/${domain}`).then((r) => r.json()),
+        fetch(`https://rdap.org/domain/${domain}`).then((r) => r.json()),
+        fetch(`https://api.hackertarget.com/dnslookup/?q=${domain}`).then((r) =>
+          r.text()
+        ),
+        fetch(`https://crt.sh/?q=%25.${domain}&output=json`).then((r) =>
+          r.json()
+        ),
+        fetch(`https://archive.org/wayback/available?url=${domain}`).then((r) =>
+          r.json()
+        ),
+      ]);
+
+      reconData.geo = geoRes;
+      reconData.whois = whoisRes;
+      reconData.dns = dnsRes;
+      reconData.subdomains = crtRes.map((cert) => cert.name_value);
+
+      // Add archive.org snapshot info if available
+      if (
+        archiveRes &&
+        archiveRes.archived_snapshots &&
+        archiveRes.archived_snapshots.closest
+      ) {
+        reconData.archive = {
+          url: archiveRes.archived_snapshots.closest.url,
+          timestamp: archiveRes.archived_snapshots.closest.timestamp,
+          available: true,
+        };
+      } else {
+        reconData.archive = { available: false };
+      }
+    } catch (err) {
+      reconData.error = err.message;
+    }
+
+    chrome.tabs.sendMessage(tab.id, {
+      action: "display recon",
+      data: reconData,
+    });
+  }
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {

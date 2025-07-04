@@ -6,9 +6,12 @@ import time
 import joblib
 import base64
 
+from run_recon.run_recon import spot_vulnerabilities
 from url_evaluator.evaluator import evaluateUrl
 from map_inputs.map_inputs import findInputs
 from check_cookie_security.cookies_security import check_cookies_security
+
+
 
 print("Script started")
 
@@ -159,6 +162,21 @@ def check_cookies_route():
             "status": "error",
             "message": f"Error evaluating cookies: {str(e)}"
         }), 500
+
+@app.route("/api/recon/vulnerabilities", methods=["POST"])
+def check_recon_vulnerabilities():
+    try:
+        recon_data = request.get_json()
+        if not recon_data:
+            return jsonify({"error": "No JSON body provided"}), 400
+
+        model = joblib.load("recon_misconfig_model.joblib")
+        result = spot_vulnerabilities(recon_data, model)
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 def start_server():
     app.run(port=6969)

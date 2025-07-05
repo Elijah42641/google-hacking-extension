@@ -1,6 +1,4 @@
 function displayInputs() {
-  console.log("Running displayInputs with inputs:", inputs);
-
   const existing = document.getElementById("input-panel");
   if (existing) existing.remove();
 

@@ -8,10 +8,7 @@ import base64
 
 from run_recon.run_recon import spot_vulnerabilities
 from url_evaluator.evaluator import evaluateUrl
-from map_inputs.map_inputs import findInputs
 from check_cookie_security.cookies_security import check_cookies_security
-
-
 
 print("Script started")
 
@@ -102,8 +99,7 @@ def makeRequest():
     "url": customRequest.url
 })
 
-@app.route("/map-input-elements", methods=["POST"])
-def map_all_input_elements():
+    print("mapping inputs")
     data = request.get_json()
 
     html_encoded = data.get("html", "")

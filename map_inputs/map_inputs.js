@@ -1,7 +1,6 @@
-let inputs = [];
-
 function displayInputs() {
-  // Remove existing panel if any
+  console.log("Running displayInputs with inputs:", inputs);
+
   const existing = document.getElementById("input-panel");
   if (existing) existing.remove();
 
@@ -10,75 +9,29 @@ function displayInputs() {
   panel.innerHTML = `<h4 style="margin-top:0;">Inputs Found</h4>`;
   document.body.appendChild(panel);
 
-  inputs.forEach((inputEl, index) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(inputEl, "text/html");
-    const input = doc.body.firstElementChild;
+  // Find all input elements on the page (or any other selector you want)
+  const allInputs = document.querySelectorAll("input, select, textarea");
 
-    if (!input) return;
+  allInputs.forEach((el, index) => {
+    // Assign unique id directly to element
+    const uniqueId = `input-auto-id-${index}`;
+    el.id = uniqueId;
 
-    let inputId = input.id;
+    const label = el.name || el.placeholder || el.id || `Input ${index}`;
 
-    // If there's no ID, assign a temporary one
-    if (!inputId) {
-      inputId = `input-no-id-${index}`;
-      const realInputs = document.querySelectorAll(input.tagName);
-      const matching = Array.from(realInputs).filter(el => {
-        return el.name === input.name &&
-               el.type === input.type &&
-               el.placeholder === input.placeholder;
-      });
-      if (matching[0]) matching[0].id = inputId;
-    }
-
-    const label =
-      input.name || input.placeholder || inputId || `Input ${index}`;
     const btn = document.createElement("button");
     btn.innerText = label;
     btn.className = "input-btn";
 
     btn.addEventListener("click", () => {
-      const realElement = document.getElementById(inputId);
-      if (!realElement) return;
-
-      const existingOverlay = document.getElementById("red-overlay");
-      if (existingOverlay) existingOverlay.remove();
-
-      realElement.scrollIntoView({ behavior: "smooth", block: "center" });
-      realElement.focus({ preventScroll: true });
-
-      const overlay = document.createElement("div");
-      overlay.id = "red-overlay";
-      Object.assign(overlay.style, {
-        position: "fixed",
-        top: "0",
-        left: "0",
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "rgba(255,0,0,0.8)",
-        zIndex: "99999999",
-        transition: "all 1s ease",
-        pointerEvents: "none",
-      });
-      document.body.appendChild(overlay);
-
-      const rect = realElement.getBoundingClientRect();
-      overlay.getBoundingClientRect(); // Force reflow
-      Object.assign(overlay.style, {
-        top: `${rect.top}px`,
-        left: `${rect.left}px`,
-        width: `${rect.width}px`,
-        height: `${rect.height}px`,
-        borderRadius: "6px",
-      });
-
-      overlay.addEventListener(
-        "transitionend",
-        () => {
-          overlay.remove();
-        },
-        { once: true }
-      );
+      const realEl = document.getElementById(uniqueId);
+      if (!realEl) {
+        console.warn(`No element found with id ${uniqueId}`);
+        return;
+      }
+      realEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      realEl.focus({ preventScroll: true });
+      highlightElement(realEl);
     });
 
     panel.appendChild(btn);
@@ -87,45 +40,53 @@ function displayInputs() {
   makeResizable(panel);
 }
 
+// Helper function to highlight element with overlay
+function highlightElement(el) {
+  const existingOverlay = document.getElementById("red-overlay");
+  if (existingOverlay) existingOverlay.remove();
 
-function mapInputs() {
-  console.log("mapping inputs");
-  const rawHTML = document.documentElement.outerHTML;
-  const encodedHTML = btoa(unescape(encodeURIComponent(rawHTML)));
+  const overlay = document.createElement("div");
+  overlay.id = "red-overlay";
+  Object.assign(overlay.style, {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(255,0,0,0.8)",
+    zIndex: "99999999",
+    transition: "all 1s ease",
+    pointerEvents: "none",
+  });
+  document.body.appendChild(overlay);
 
-  fetch("http://localhost:6969/map-input-elements", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ html: encodedHTML }),
-  })
-    .then((res) => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .then((data) => {
-      if (!data.inputs || data.inputs.length === 0) {
-        window.alert("No inputs found");
-      } else {
-        inputs = data.inputs;
-        console.log("Inputs detected:", inputs);
-        displayInputs();
-      }
-    })
-    .catch((err) => {
-      console.error("Error sending to Python:", err);
-      window.alert(
-        "Failed to fetch input elements. Check console for details."
-      );
-    });
+  const rect = el.getBoundingClientRect();
+  overlay.getBoundingClientRect(); // force reflow
+
+  Object.assign(overlay.style, {
+    top: `${rect.top}px`,
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+    borderRadius: "6px",
+  });
+
+  overlay.addEventListener(
+    "transitionend",
+    () => {
+      overlay.remove();
+    },
+    { once: true }
+  );
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "map out all inputs") {
-    mapInputs();
+    displayInputs();
   }
 });
 
-// Inject styles
+// ====== Inject styles for input panel & resizer ======
 const style = document.createElement("style");
 style.textContent = `
   #input-panel {
@@ -157,50 +118,16 @@ style.textContent = `
     border-radius: 4px;
   }
 
-  .highlighted-input {
-    outline: 3px solid red !important;
-    outline-offset: 2px;
-    background-color: yellow !important;
-    box-shadow: 0 0 8px 3px rgba(255, 0, 0, 0.7);
-    transition: outline 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-    position: relative;
-    z-index: 999999 !important;
-  }
-
   .resizer {
     position: absolute;
     background: transparent;
     z-index: 10000;
   }
 
-  .resizer.right { 
-    right: -5px; 
-    top: 0; 
-    width: 10px; 
-    height: 100%; 
-    cursor: ew-resize; 
-  }
-  .resizer.left { 
-    left: -5px; 
-    top: 0; 
-    width: 10px; 
-    height: 100%; 
-    cursor: ew-resize; 
-  }
-  .resizer.bottom { 
-    bottom: -5px; 
-    left: 0; 
-    height: 10px; 
-    width: 100%; 
-    cursor: ns-resize; 
-  }
-  .resizer.top { 
-    top: -5px; 
-    left: 0; 
-    height: 10px; 
-    width: 100%; 
-    cursor: ns-resize; 
-  }
+  .resizer.right { right: -5px; top: 0; width: 10px; height: 100%; cursor: ew-resize; }
+  .resizer.left { left: -5px; top: 0; width: 10px; height: 100%; cursor: ew-resize; }
+  .resizer.bottom { bottom: -5px; left: 0; height: 10px; width: 100%; cursor: ns-resize; }
+  .resizer.top { top: -5px; left: 0; height: 10px; width: 100%; cursor: ns-resize; }
 
   .resizer.corner {
     width: 12px;
@@ -209,29 +136,14 @@ style.textContent = `
     position: absolute;
   }
 
-  .resizer.bottom-right { 
-    right: -6px; 
-    bottom: -6px; 
-    cursor: nwse-resize; 
-  }
-  .resizer.bottom-left { 
-    left: -6px; 
-    bottom: -6px; 
-    cursor: nesw-resize; 
-  }
-  .resizer.top-right { 
-    right: -6px; 
-    top: -6px; 
-    cursor: nesw-resize; 
-  }
-  .resizer.top-left { 
-    left: -6px; 
-    top: -6px; 
-    cursor: nwse-resize; 
-  }
+  .resizer.bottom-right { right: -6px; bottom: -6px; cursor: nwse-resize; }
+  .resizer.bottom-left { left: -6px; bottom: -6px; cursor: nesw-resize; }
+  .resizer.top-right { right: -6px; top: -6px; cursor: nesw-resize; }
+  .resizer.top-left { left: -6px; top: -6px; cursor: nwse-resize; }
 `;
 document.head.appendChild(style);
 
+// ====== Resizable logic ======
 function makeResizable(el) {
   const edges = ["top", "right", "bottom", "left"];
   const corners = ["top-left", "top-right", "bottom-left", "bottom-right"];
@@ -257,8 +169,8 @@ function makeResizable(el) {
 
       startX = e.clientX;
       startY = e.clientY;
-      startWidth = parseInt(getComputedStyle(el, null).width, 10);
-      startHeight = parseInt(getComputedStyle(el, null).height, 10);
+      startWidth = parseInt(getComputedStyle(el).width, 10);
+      startHeight = parseInt(getComputedStyle(el).height, 10);
       startTop = el.offsetTop;
       startLeft = el.offsetLeft;
 

@@ -184,6 +184,14 @@ function openPowershellLibrary() {
     
     <div class="grid">
       <div class="card">
+       <h3>Nmap Cheat Sheet</h3>
+  <ul>
+    <li><code>nmap -sV -sC -Pn target.com</code> – Default scripts and version detection</li>
+    <li><code>nmap -p- target.com</code> – Scan all 65535 ports</li>
+    <li><code>nmap -T4 -A -v target.com</code> – Aggressive scan with OS detection</li>
+    <li><code>nmap -sU -p 53,67,161 target.com</code> – UDP port scan</li>
+    <li><code>nmap -script vuln target.com</code> – Run vulnerability scripts</li>
+  </ul>
         <h3>Race Conditions</h3>
         <ul>
           <li>Create two accounts with identical emails in different tabs</li>
